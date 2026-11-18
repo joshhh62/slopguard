@@ -198,9 +198,9 @@ footer{border-top:1px solid var(--line2);padding:26px 0 40px;color:var(--dim);fo
   <!-- landing -->
   <section id="landing">
     <div class="hero">
-      <div class="eyebrow">✦ Architecture-agnostic code review agent · powered by Claude</div>
+      <div class="eyebrow">✦ Architecture-agnostic code review agent · AI-powered triage</div>
       <h1>Find the <em>slop</em> before it ships.</h1>
-      <p class="sub">SlopGuard hunts security holes, AI-generated slop, coding gaps and loose ends in any repository and any language. Then a Claude agent verifies every finding against the real code.</p>
+      <p class="sub">SlopGuard hunts security holes, AI-generated slop, coding gaps and loose ends in any repository and any language. Then an AI agent verifies every finding against the real code.</p>
       <form class="scanbox" id="form">
         <input id="src" autocomplete="off" spellcheck="false" placeholder="https://github.com/owner/repo  or  C:\path\to\project">
         <button class="btn primary" type="submit">
@@ -209,7 +209,7 @@ footer{border-top:1px solid var(--line2);padding:26px 0 40px;color:var(--dim);fo
       </form>
       <div class="opts">
         <span>No repo handy? <button type="button" class="link" id="demo">Scan the polyglot demo app</button></span>
-        <label class="toggle" id="aitoggle" title="Set ANTHROPIC_API_KEY on the server to enable"><input type="checkbox" id="ai"><span class="sw"></span>Claude AI triage</label>
+        <label class="toggle" id="aitoggle" title="Set ANTHROPIC_API_KEY on the server to enable"><input type="checkbox" id="ai"><span class="sw"></span>AI triage</label>
       </div>
       <div class="samples"><span>Try:</span>
         <button type="button" data-s="https://github.com/pallets/itsdangerous">pallets/itsdangerous</button>
@@ -224,7 +224,7 @@ footer{border-top:1px solid var(--line2);padding:26px 0 40px;color:var(--dim);fo
     <div class="how">
       <div class="step"><b>01 · DISCOVER</b><h4>Any stack, any layout</h4><p>30+ languages and config formats. Skips vendored, generated and binary files.</p></div>
       <div class="step"><b>02 · DETECT</b><h4>38 precise detectors</h4><p>Regex, AST and repo-wide rules, tuned for precision. It scans itself clean.</p></div>
-      <div class="step"><b>03 · TRIAGE</b><h4>Claude verifies</h4><p>Sandboxed read-only tools. Confirms, dismisses, re-scores and writes tailored fixes.</p></div>
+      <div class="step"><b>03 · TRIAGE</b><h4>AI verifies</h4><p>Sandboxed read-only tools. Confirms, dismisses, re-scores and writes tailored fixes.</p></div>
       <div class="step"><b>04 · SHIP</b><h4>Gate it in CI</h4><p>SARIF, Markdown, HTML and JSON reports, plus diff mode, baselines and a GitHub Action.</p></div>
     </div>
   </section>
@@ -256,7 +256,7 @@ footer{border-top:1px solid var(--line2);padding:26px 0 40px;color:var(--dim);fo
     </div>
 
     <div class="statrow fade" id="statrow"></div>
-    <div class="card ai fade" id="aicard" style="display:none"><h3>✦ Claude triage summary</h3><div class="body" id="aisum"></div><div class="why" id="aiusage"></div></div>
+    <div class="card ai fade" id="aicard" style="display:none"><h3>✦ AI triage summary</h3><div class="body" id="aisum"></div><div class="why" id="aiusage"></div></div>
 
     <div class="two fade">
       <div class="card"><h3>Risk hotspots</h3><div class="hot" id="hot"></div></div>
@@ -308,7 +308,7 @@ async function start(source){
   const ai=$('#ai').checked;
   $('#scantitle').textContent=source==='demo'?'Scanning the demo app…':'Scanning '+source;
   const msgs=[source.startsWith('https://')?'fetching repository snapshot…':'discovering files…','detecting languages…','running 38 detectors…','checking imports against manifests…','looking for duplicated blocks…','scoring…'];
-  if(ai)msgs.push('Claude is triaging findings…','writing executive summary…');
+  if(ai)msgs.push('AI agent is triaging findings…','writing executive summary…');
   let i=0;const tick=setInterval(()=>{$('#steps').textContent='› '+msgs[Math.min(i++,msgs.length-1)]},650);$('#steps').textContent='› '+msgs[0];
   const t0=performance.now();
   try{
@@ -363,7 +363,7 @@ function render(){
   const cc={};Object.keys(CATS).forEach(k=>cc[k]=L.filter(f=>f.category===k).length);donut(cc);
   $('#langs').innerHTML=Object.entries(s.languages).map(([k,v])=>`<span class="chip">${esc(k)} · ${v}</span>`).join('');
   const dismissed=d.findings.length-L.length,ai=d.findings.filter(f=>f.source==='ai').length;
-  $('#statrow').innerHTML=[[L.length,'open findings'],[new Set(L.filter(f=>f.path).map(f=>f.path)).size,'files affected'],[d.ai?dismissed:s.suppressed,d.ai?'dismissed by Claude':'suppressed inline'],[d.ai?ai:Object.keys(s.languages).length,d.ai?'new issues found by Claude':'languages detected']]
+  $('#statrow').innerHTML=[[L.length,'open findings'],[new Set(L.filter(f=>f.path).map(f=>f.path)).size,'files affected'],[d.ai?dismissed:s.suppressed,d.ai?'dismissed by AI':'suppressed inline'],[d.ai?ai:Object.keys(s.languages).length,d.ai?'new issues found by AI':'languages detected']]
     .map(([v,k])=>`<div class="card stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
   if(d.ai&&d.ai.summary){$('#aicard').style.display='block';$('#aisum').textContent=d.ai.summary;const u=d.ai.usage;$('#aiusage').textContent=`${u.requests} requests · ${u.tool_calls} tool calls`+(u.estimated_cost_usd!=null?` · ~$${u.estimated_cost_usd}`:'')}else $('#aicard').style.display='none';
   const hmx=Math.max(1,...d.files.map(f=>f.risk));
@@ -385,7 +385,7 @@ function list(){
   $('#count').textContent=`${rows.length} of ${all.length} findings`;
   if(!rows.length){$('#list').innerHTML='<div class="empty">Nothing matches these filters.</div>';return}
   $('#list').innerHTML=rows.slice(0,state.limit).map((f,i)=>{const c=CATS[f.category]||CATS.gap;
-    const tag=f.verdict==='confirmed'?`<span class="tag ai">${f.source==='ai'?'✦ found by Claude':'✦ confirmed by Claude'}</span>`:f.verdict==='false_positive'?'<span class="tag">dismissed by Claude</span>':f.verdict==='needs_review'?'<span class="tag">needs review</span>':'';
+    const tag=f.verdict==='confirmed'?`<span class="tag ai">${f.source==='ai'?'✦ found by AI':'✦ AI-confirmed'}</span>`:f.verdict==='false_positive'?'<span class="tag">dismissed by AI</span>':f.verdict==='needs_review'?'<span class="tag">needs review</span>':'';
     return `<div class="f ${f.verdict==='false_positive'?'dismissed':''} ${i===0?'open':''}" style="--sc:${SEVC[f.severity]}">
     <div class="fh"><span class="badge b-${f.severity}">${f.severity}</span>
       <div class="ft"><div class="t">${esc(f.title)} <span class="rid">${esc(f.rule_id)}</span><span class="tag cat" style="--c:${c.c}">${c.label}</span>${tag}</div>

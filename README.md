@@ -1,6 +1,6 @@
 # SlopGuard 🛡️
 
-**An architecture-agnostic agent that hunts security holes, AI slop, coding gaps and loose ends, then uses Claude to triage what it found.**
+**An architecture-agnostic agent that hunts security holes, AI slop, coding gaps and loose ends, then uses an AI agent to triage what it found.**
 
 ### 🔗 Live demo: **https://slopguard-eta.vercel.app**: paste any public GitHub repo URL and get a report in seconds.
 
@@ -13,7 +13,7 @@ AI coding tools write a large share of new code, and teams merge it faster than 
 * `except: pass`,
 * half-written functions that silently do nothing.
 
-SlopGuard catches these in any repository, in any language, in under a second. When you add `--ai`, a Claude agent then checks every finding against the real code. It confirms or dismisses each one, writes a fix specific to your code, and reports problems the rules can't see.
+SlopGuard catches these in any repository, in any language, in under a second. When you add `--ai`, an AI agent then checks every finding against the real code. It confirms or dismisses each one, writes a fix specific to your code, and reports problems the rules can't see.
 
 ![SlopGuard dashboard scanning a real GitHub repository](docs/dashboard.jpg)
 
@@ -68,7 +68,7 @@ Full sample output: [Markdown report](docs/sample-report/slopguard-report.md) ·
 | **4 problem classes, 38 rules** | Security · AI slop · coding gaps · loose ends ([full catalogue](#rule-catalogue)) |
 | **Architecture agnostic** | 30+ languages and config formats. Rules are declared once against a small language model of how each language writes comments, not a parser per language. Python gets extra AST precision for free from the standard library. |
 | **Zero dependencies** | The scanner is pure standard-library Python ≥ 3.11. The `anthropic` SDK is only needed for `--ai`. |
-| **AI triage agent** | Claude reads the code with sandboxed, read-only tools. It returns confirmed / false-positive / needs-review verdicts, corrected severities, tailored fixes and issues the rules missed, plus an executive summary. |
+| **AI triage agent** | An LLM agent reads the code with sandboxed, read-only tools. It returns confirmed / false-positive / needs-review verdicts, corrected severities, tailored fixes and issues the rules missed, plus an executive summary. |
 | **Slopsquatting detection** | Every import is checked against `requirements.txt` / `pyproject.toml` / `package.json` and the repo's own modules. Packages an LLM invented are flagged before an attacker registers them. |
 | **Secure by design** | Secrets are redacted before they reach any report or the LLM. The agent can't escape the repo or follow instructions planted in code. The HTML report is XSS-safe. |
 | **Web dashboard** | `slopguard serve`: paste a GitHub URL or folder and explore results visually, then export any report format |
