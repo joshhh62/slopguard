@@ -36,3 +36,6 @@ include = ["slopguard*"]
 testpaths = ["tests"]
 pythonpath = [".", "tests"]
 addopts = "-q"
+
+[tool.vercel]
+entrypoint = "app:app"
