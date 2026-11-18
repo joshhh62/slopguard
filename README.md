@@ -28,7 +28,7 @@ Paste a **public GitHub URL** or a **local folder path**, or click *Scan the pol
 - searchable, filterable findings with code, suggested fix and Claude verdict for each,
 - one-click export to HTML, Markdown, SARIF or JSON.
 
-If `ANTHROPIC_API_KEY` is set, a toggle runs the Claude triage agent from the UI. The server binds to `127.0.0.1` only, rejects cross-origin requests, and accepts only `https://github.com/<owner>/<repo>` URLs, which it shallow-clones into a temporary directory that is deleted after the scan.
+If `ANTHROPIC_API_KEY` is set, a toggle runs the Claude triage agent from the UI. The server binds to `127.0.0.1` only, rejects cross-origin requests, and accepts only `https://github.com/<owner>/<repo>` URLs, which it downloads as a size-capped snapshot (no git needed), extracts with path-traversal protection, and deletes after the scan. The same code deploys as a serverless app on Vercel (`vercel.json` + `api/`), where local-folder scanning is disabled.
 
 ![SlopGuard landing page](docs/landing.jpg)
 
@@ -230,7 +230,7 @@ slopguard/
   agent/            Claude triage loop, sandboxed tools, prompts
   reporters/        console · markdown · html · json · sarif
   web/              `slopguard serve` dashboard (stdlib HTTP server + single-page UI)
-tests/              34 tests, including the full agent loop and the web API
+tests/              35 tests, including the full agent loop and the web API
 examples/vulnerable-app/   polyglot demo (Python, JS, Go, Java, YAML, .env) with planted issues
 ```
 

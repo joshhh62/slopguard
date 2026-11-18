@@ -33,8 +33,8 @@ def test_dashboard_page_and_meta(base_url):
 def test_demo_scan_and_exports(base_url):
     data = json.loads(_post(base_url + "/api/scan", {"source": "demo"}).read())
     assert data["grade"] == "F" and data["files"][0]["path"] == "api/app.py"
-    sarif = json.loads(urllib.request.urlopen(base_url + "/api/export/sarif").read())
-    assert sarif["version"] == "2.1.0"
+    assert json.loads(data["exports"]["sarif"])["version"] == "2.1.0"
+    assert data["exports"]["md"].startswith("# SlopGuard report")
 
 
 def test_rejects_bad_sources_and_cross_origin(base_url, tmp_path):
@@ -46,3 +46,9 @@ def test_rejects_bad_sources_and_cross_origin(base_url, tmp_path):
     assert exc.value.code == 403
     with pytest.raises(ValueError):
         run_scan({"source": str(tmp_path / "missing")})
+
+
+def test_hosted_mode_refuses_local_paths(monkeypatch, tmp_path):
+    monkeypatch.setenv("SLOPGUARD_HOSTED", "1")
+    with pytest.raises(ValueError, match="GitHub URLs only"):
+        run_scan({"source": str(tmp_path)})
