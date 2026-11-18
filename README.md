@@ -2,6 +2,8 @@
 
 **An architecture-agnostic agent that hunts security holes, AI slop, coding gaps and loose ends, then uses Claude to triage what it found.**
 
+### 🔗 Live demo: **https://slopguard-eta.vercel.app**: paste any public GitHub repo URL and get a report in seconds.
+
 AI coding tools write a large share of new code, and teams merge it faster than anyone reviews it. Some patterns now show up again and again in that code:
 
 * leaked keys,
