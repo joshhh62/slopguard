@@ -13,6 +13,27 @@ AI coding tools write a large share of new code, and teams merge it faster than 
 
 SlopGuard catches these in any repository, in any language, in under a second. When you add `--ai`, a Claude agent then checks every finding against the real code. It confirms or dismisses each one, writes a fix specific to your code, and reports problems the rules can't see.
 
+![SlopGuard dashboard scanning a real GitHub repository](docs/dashboard.jpg)
+
+## Web dashboard
+
+```bash
+pip install -e .
+slopguard serve            # opens http://localhost:8000
+```
+
+Paste a **public GitHub URL** or a **local folder path**, or click *Scan the polyglot demo app*. The dashboard shows:
+- an animated health-score gauge and severity and category charts,
+- the riskiest files as a hotspot list (click one to filter to it),
+- searchable, filterable findings with code, suggested fix and Claude verdict for each,
+- one-click export to HTML, Markdown, SARIF or JSON.
+
+If `ANTHROPIC_API_KEY` is set, a toggle runs the Claude triage agent from the UI. The server binds to `127.0.0.1` only, rejects cross-origin requests, and accepts only `https://github.com/<owner>/<repo>` URLs, which it shallow-clones into a temporary directory that is deleted after the scan.
+
+![SlopGuard landing page](docs/landing.jpg)
+
+## Command line
+
 ```text
 $ slopguard scan examples/vulnerable-app
 
@@ -48,6 +69,7 @@ Full sample output: [Markdown report](docs/sample-report/slopguard-report.md) ·
 | **AI triage agent** | Claude reads the code with sandboxed, read-only tools. It returns confirmed / false-positive / needs-review verdicts, corrected severities, tailored fixes and issues the rules missed, plus an executive summary. |
 | **Slopsquatting detection** | Every import is checked against `requirements.txt` / `pyproject.toml` / `package.json` and the repo's own modules. Packages an LLM invented are flagged before an attacker registers them. |
 | **Secure by design** | Secrets are redacted before they reach any report or the LLM. The agent can't escape the repo or follow instructions planted in code. The HTML report is XSS-safe. |
+| **Web dashboard** | `slopguard serve`: paste a GitHub URL or folder and explore results visually, then export any report format |
 | **Built for CI** | `--fail-on high`, `--diff origin/main` (only lines changed in the PR), baselines for legacy debt, SARIF for GitHub code scanning, and a ready-made GitHub Action. |
 | **Honest scoring** | 0–100 health score, normalised by code size and capped per category. Any open critical finding caps the grade at F. |
 
@@ -160,6 +182,7 @@ slopguard scan [PATH] [-f console,md,json,sarif,html] [-o DIR]
                [--fail-on SEV] [--min-severity SEV] [--category security,slop,gap,loose-end]
                [--rules ID,...] [--exclude GLOB] [--diff GIT_REF]
                [--baseline FILE] [--write-baseline FILE] [--config FILE] [--show-dismissed]
+slopguard serve [--port 8000]  # web dashboard
 slopguard rules              # list every rule
 slopguard explain SEC012     # why it matters, how to fix, how to suppress
 ```
@@ -206,7 +229,8 @@ slopguard/
   rules/            secrets · security · slop · deps · duplication · gaps · loose_ends · python_ast
   agent/            Claude triage loop, sandboxed tools, prompts
   reporters/        console · markdown · html · json · sarif
-tests/              31 tests, including the full agent loop with a fake client
+  web/              `slopguard serve` dashboard (stdlib HTTP server + single-page UI)
+tests/              34 tests, including the full agent loop and the web API
 examples/vulnerable-app/   polyglot demo (Python, JS, Go, Java, YAML, .env) with planted issues
 ```
 

@@ -14,7 +14,8 @@
     "optional": ["anthropic (for --ai)"]
   },
   "setup": "pip install -e \".[dev]\"",
-  "run": "slopguard scan examples/vulnerable-app",
+  "run": "slopguard serve",
+  "run_cli": "slopguard scan examples/vulnerable-app",
   "run_ai": "slopguard scan examples/vulnerable-app --ai",
   "test": "pytest",
   "demo": {
@@ -28,6 +29,7 @@
   "ai_log": "AI_LOG.md",
   "ai_tools": ["Claude Code (Claude Opus 5.5)", "Claude API (claude-opus-5-5) - runtime triage agent"],
   "features": [
+    "Web dashboard (slopguard serve): scan a GitHub URL or local folder, interactive charts, hotspots, filters, exports",
     "38 rules: security, AI slop, coding gaps, loose ends",
     "Language-agnostic engine driven by a declarative language table, plus Python AST rules",
     "Hallucinated / undeclared dependency detection (slopsquatting) for Python and JS/TS",

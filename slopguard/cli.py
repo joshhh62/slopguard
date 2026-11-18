@@ -53,6 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--show-dismissed", action="store_true", help="also print findings the AI marked false positive")
     s.add_argument("--limit", type=int, default=60, help="max findings printed to the console (default: 60)")
 
+    w = sub.add_parser("serve", help="open the interactive web dashboard")
+    w.add_argument("--port", type=int, default=8000, help="port (default: 8000)")
+    w.add_argument("--host", default="127.0.0.1", help="bind address (default: 127.0.0.1, local only)")
+    w.add_argument("--no-browser", action="store_true", help="do not open a browser tab")
+
     sub.add_parser("rules", help="list every built-in rule")
     e = sub.add_parser("explain", help="explain one rule")
     e.add_argument("rule_id")
@@ -166,6 +171,11 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_scan(args)
         if args.command == "rules":
             return cmd_rules()
+        if args.command == "serve":
+            from .web.server import serve
+
+            serve(args.host, args.port, open_browser=not args.no_browser)
+            return EXIT_OK
         return cmd_explain(args.rule_id)
     except (ValueError, NotADirectoryError, RuntimeError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)

@@ -29,6 +29,9 @@ slopguard = "slopguard.cli:main"
 [tool.setuptools.packages.find]
 include = ["slopguard*"]
 
+[tool.setuptools.package-data]
+"slopguard.web" = ["static/*.html"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = [".", "tests"]

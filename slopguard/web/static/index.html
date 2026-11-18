@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SlopGuard - find the slop before it ships</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.6 12 15 6.9-1.4 12-7.5 12-15V7z' fill='%237c5cff'/%3E%3Cpath d='m10 16 4 4 8-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#07080d;--bg2:#0d0f17;--card:rgba(255,255,255,.035);--card2:rgba(255,255,255,.06);--line:rgba(255,255,255,.08);
+  --text:#eef0f6;--dim:#8a90a6;--dim2:#5d6278;--accent:#7c5cff;--accent2:#22d3ee;
+  --crit:#ff4d6d;--high:#ff8a3d;--med:#f5c542;--low:#4da3ff;--info:#8a90a6;--ok:#2ee59d;
+  --security:#ff4d6d;--slop:#c084fc;--gap:#f5c542;--loose:#22d3ee;
+  --r:16px;--mono:ui-monospace,SFMono-Regular,"Cascadia Code",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font:15px/1.55 Inter,ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:-20% -10% auto;height:70vh;background:radial-gradient(600px 300px at 20% 20%,rgba(124,92,255,.22),transparent 70%),radial-gradient(500px 260px at 80% 10%,rgba(34,211,238,.14),transparent 70%);pointer-events:none;z-index:0}
+body:after{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(#000,transparent 70%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+code,pre{font-family:var(--mono)}
+/* nav */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em;cursor:pointer}
+.brand svg{filter:drop-shadow(0 0 12px rgba(124,92,255,.6))}
+.ver{font:500 11px var(--mono);color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.navr{display:flex;gap:10px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim2)}
+.dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+/* hero */
+.hero{text-align:center;padding:72px 0 40px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;color:#c9bfff;background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.35);border-radius:999px;padding:6px 14px;margin-bottom:26px}
+h1{font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-.035em;font-weight:800}
+.grad{background:linear-gradient(92deg,#a78bfa 0%,#7c5cff 35%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{max-width:680px;margin:20px auto 0;color:var(--dim);font-size:17.5px}
+.scanbox{max-width:760px;margin:38px auto 0;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,linear-gradient(120deg,rgba(124,92,255,.7),rgba(34,211,238,.5)) border-box;border:1px solid transparent;border-radius:18px;padding:8px;display:flex;gap:8px;box-shadow:0 20px 80px -20px rgba(124,92,255,.45)}
+.scanbox input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:15px var(--mono);padding:14px 16px}
+.scanbox input::placeholder{color:var(--dim2)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:12px 20px;font-weight:600;font-size:14.5px;transition:.15s transform,.15s background,.15s box-shadow;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(135deg,#8b6cff,#6a46ff);box-shadow:0 8px 24px -6px rgba(124,92,255,.7)}
+.btn.primary:hover{box-shadow:0 10px 30px -4px rgba(124,92,255,.9)}
+.btn.ghost{border:1px solid var(--line);background:var(--card)}
+.btn.ghost:hover{background:var(--card2)}
+.btn.sm{padding:8px 13px;font-size:13px;border-radius:10px}
+.opts{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:18px;color:var(--dim);font-size:13.5px}
+.opts button{color:#c9bfff;text-decoration:underline;text-underline-offset:3px}
+.toggle{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.toggle input{display:none}
+.toggle .sw{width:34px;height:20px;border-radius:999px;background:var(--card2);border:1px solid var(--line);position:relative;transition:.2s}
+.toggle .sw:after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:.2s}
+.toggle input:checked+.sw{background:rgba(124,92,255,.5);border-color:var(--accent)}
+.toggle input:checked+.sw:after{left:16px;background:#fff}
+.toggle.disabled{opacity:.45;cursor:not-allowed}
+.err{max-width:760px;margin:16px auto 0;color:#ffb3c1;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.35);border-radius:12px;padding:10px 14px;font-size:14px;display:none}
+/* features */
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:60px 0 24px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:.2s transform,.2s border-color}
+.feat:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.16)}
+.feat:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:var(--c)}
+.feat .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);margin-bottom:14px}
+.feat h3{font-size:15.5px;margin-bottom:6px}
+.feat p{color:var(--dim);font-size:13.5px}
+.feat .n{font:600 12px var(--mono);color:var(--c);margin-top:12px}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 80px}
+.step{padding:18px;border-left:1px solid var(--line)}
+.step b{font:600 12px var(--mono);color:var(--accent2)}
+.step h4{margin:6px 0 4px;font-size:14.5px}
+.step p{color:var(--dim);font-size:13px}
+/* scanning */
+.scanning{display:none;flex-direction:column;align-items:center;padding:110px 0 140px;text-align:center}
+.radar{width:170px;height:170px;border-radius:50%;position:relative;background:radial-gradient(circle,rgba(124,92,255,.18),transparent 65%);border:1px solid rgba(124,92,255,.35)}
+.radar:before,.radar:after{content:"";position:absolute;inset:22%;border-radius:50%;border:1px solid rgba(124,92,255,.25)}
+.radar:after{inset:44%}
+.sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(34,211,238,.55),transparent 28%);animation:spin 1.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scanning h2{margin-top:34px;font-size:22px}
+.steps{margin-top:14px;color:var(--dim);font:13px var(--mono);min-height:20px}
+/* dashboard */
+.dash{display:none;padding:10px 0 80px}
+.dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin:18px 0 22px}
+.dhead h2{font-size:26px;letter-spacing:-.02em;word-break:break-all}
+.dhead .meta{color:var(--dim);font-size:13.5px;margin-top:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:300px 1fr 1fr;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;backdrop-filter:blur(8px)}
+.card h3{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);font-weight:600;margin-bottom:16px}
+.gauge{display:flex;flex-direction:column;align-items:center}
+.gauge .g{position:relative;width:190px;height:190px}
+.gauge .g .lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge .grade{font-size:62px;font-weight:800;line-height:1;letter-spacing:-.04em}
+.gauge .score{font:600 14px var(--mono);color:var(--dim);margin-top:4px}
+.verdict{margin-top:14px;font-size:13.5px;color:var(--dim);text-align:center}
+.sevs{display:grid;gap:12px}
+.sev{display:grid;grid-template-columns:78px 1fr 38px;align-items:center;gap:12px;font-size:13.5px}
+.sev .bar{height:9px;border-radius:999px;background:rgba(255,255,255,.05);overflow:hidden}
+.sev .bar i{display:block;height:100%;width:0;border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.sev b{text-align:right;font-family:var(--mono)}
+.cats{display:flex;gap:18px;align-items:center}
+.legend{display:grid;gap:10px;flex:1}
+.legend div{display:flex;align-items:center;gap:9px;font-size:13.5px}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend b{margin-left:auto;font-family:var(--mono)}
+.langs{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.chip{font:500 11.5px var(--mono);padding:4px 9px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:#c6cbe0}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.stat{padding:16px 18px}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.stat .k{color:var(--dim);font-size:12.5px}
+.ai{margin-top:16px;border-color:rgba(46,229,157,.35);background:linear-gradient(135deg,rgba(46,229,157,.07),transparent 60%)}
+.ai h3{color:var(--ok)}
+.ai .body{white-space:pre-wrap;font-size:14.5px}
+.two{display:grid;grid-template-columns:1fr 2.2fr;gap:16px;margin-top:16px;align-items:start}
+.hot{display:grid;gap:10px}
+.hot .row{display:grid;gap:5px;cursor:pointer}
+.hot .row:hover .p{color:#fff}
+.hot .p{font:12.5px var(--mono);color:#c6cbe0;display:flex;justify-content:space-between;gap:8px}
+.hot .p span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hot .bar{height:6px;border-radius:999px;background:rgba(255,255,255,.05);overflow:hidden}
+.hot .bar i{display:block;height:100%;border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1);width:0}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.search{flex:1;min-width:200px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--text);font-size:13.5px;outline:0}
+.search:focus{border-color:var(--accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font-size:13px;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--dim)}
+.tab.on{color:#fff;background:rgba(124,92,255,.22);border-color:rgba(124,92,255,.6)}
+.tab em{font-style:normal;font-family:var(--mono);opacity:.7;margin-left:5px}
+.sevf{display:flex;gap:6px}
+.sevf button{font:600 11px var(--mono);text-transform:uppercase;padding:6px 9px;border-radius:8px;border:1px solid var(--line);opacity:.4}
+.sevf button.on{opacity:1}
+.count{color:var(--dim);font-size:12.5px;margin-bottom:10px}
+.f{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:rgba(0,0,0,.18);overflow:hidden;transition:border-color .15s}
+.f:hover{border-color:rgba(255,255,255,.16)}
+.f.dismissed{opacity:.55}
+.fh{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:13px 15px;cursor:pointer}
+.badge{font:700 10.5px var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:6px;color:#0b0b10}
+.b-critical{background:var(--crit);color:#fff}.b-high{background:var(--high)}.b-medium{background:var(--med)}.b-low{background:var(--low)}.b-info{background:var(--info)}
+.ft{min-width:0}
+.ft .t{font-weight:600;font-size:14.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ft .rid{font:600 11.5px var(--mono);color:var(--dim)}
+.ft .loc{font:12.5px var(--mono);color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font:600 10.5px var(--mono);padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--dim)}
+.tag.ai{color:var(--ok);border-color:rgba(46,229,157,.5)}
+.tag.cat{color:var(--c);border-color:color-mix(in srgb,var(--c) 45%,transparent)}
+.chev{color:var(--dim);transition:transform .2s}
+.f.open .chev{transform:rotate(90deg)}
+.fb{display:none;padding:0 15px 15px 15px;border-top:1px solid var(--line)}
+.f.open .fb{display:block}
+.fb p{color:#cfd3e3;font-size:14px;margin-top:12px}
+.fb pre{margin-top:10px;background:#05060a;border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:12.5px;overflow:auto;color:#e6e9f5}
+.fb pre .ln{color:var(--dim2);user-select:none;margin-right:12px}
+.fix{margin-top:12px;display:flex;gap:10px;background:rgba(46,229,157,.06);border:1px solid rgba(46,229,157,.25);border-radius:9px;padding:10px 12px;font-size:13.5px;color:#bff5dd}
+.fix b{color:var(--ok)}
+.why{margin-top:10px;color:var(--dim);font-size:12.5px}
+.empty{text-align:center;color:var(--dim);padding:40px}
+.more{width:100%;margin-top:6px}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--dim2);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.fade{animation:fade .5s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:980px){.grid,.two,.features,.how,.statrow{grid-template-columns:1fr 1fr}.grid>.card:first-child{grid-column:1/-1}}
+@media (max-width:640px){.grid,.two,.features,.how,.statrow{grid-template-columns:1fr}.scanbox{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <div class="brand" id="home">
+      <svg width="28" height="28" viewBox="0 0 32 32"><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><path d="M16 2 4 7v8c0 7.5 5.1 13.6 12 15 6.9-1.4 12-7.5 12-15V7z" fill="url(#lg)"/><path d="m10.5 16 3.8 3.8 7.4-7.6" stroke="#0b0b14" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      SlopGuard <span class="ver" id="ver">v1</span>
+    </div>
+    <div class="navr">
+      <span class="pill" id="aipill"><span class="dot" id="aidot"></span><span id="aitext">AI triage</span></span>
+      <a class="pill" href="https://github.com/joshhh62/slopguard" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </nav>
+
+  <!-- landing -->
+  <section id="landing">
+    <div class="hero">
+      <div class="eyebrow">✦ Architecture-agnostic code review agent · powered by Claude</div>
+      <h1>Find the <span class="grad">slop</span> before it ships.</h1>
+      <p class="sub">SlopGuard hunts security holes, AI-generated slop, coding gaps and loose ends in any repository and any language. Then a Claude agent verifies every finding against the real code.</p>
+      <form class="scanbox" id="form">
+        <input id="src" autocomplete="off" spellcheck="false" placeholder="https://github.com/owner/repo  or  C:\path\to\project">
+        <button class="btn primary" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Scan
+        </button>
+      </form>
+      <div class="opts">
+        <span>No repo handy? <button type="button" id="demo">Scan the polyglot demo app</button></span>
+        <label class="toggle" id="aitoggle" title="Set ANTHROPIC_API_KEY before `slopguard serve` to enable"><input type="checkbox" id="ai"><span class="sw"></span>Claude AI triage</label>
+      </div>
+      <div class="err" id="err"></div>
+    </div>
+
+    <div class="features" id="features"></div>
+    <div class="how">
+      <div class="step"><b>01 · DISCOVER</b><h4>Any stack, any layout</h4><p>30+ languages and config formats. Skips vendored, generated and binary files.</p></div>
+      <div class="step"><b>02 · DETECT</b><h4>38 precise detectors</h4><p>Regex, AST and repo-wide rules, tuned for precision. It scans itself clean.</p></div>
+      <div class="step"><b>03 · TRIAGE</b><h4>Claude verifies</h4><p>Sandboxed read-only tools. Confirms, dismisses, re-scores and writes tailored fixes.</p></div>
+      <div class="step"><b>04 · SHIP</b><h4>Gate it in CI</h4><p>SARIF, Markdown, HTML and JSON reports, plus diff mode, baselines and a GitHub Action.</p></div>
+    </div>
+  </section>
+
+  <!-- scanning -->
+  <section class="scanning" id="scanning">
+    <div class="radar"><div class="sweep"></div></div>
+    <h2 id="scantitle">Scanning…</h2>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <!-- dashboard -->
+  <section class="dash" id="dash">
+    <div class="dhead fade">
+      <div><h2 id="dtitle"></h2><div class="meta" id="dmeta"></div></div>
+      <div class="actions">
+        <button class="btn ghost sm" id="rescan">↻ New scan</button>
+        <a class="btn ghost sm" href="/api/export/html">⬇ HTML</a>
+        <a class="btn ghost sm" href="/api/export/md">⬇ Markdown</a>
+        <a class="btn ghost sm" href="/api/export/sarif">⬇ SARIF</a>
+        <a class="btn ghost sm" href="/api/export/json">⬇ JSON</a>
+      </div>
+    </div>
+
+    <div class="grid fade">
+      <div class="card gauge"><h3>Health score</h3><div class="g" id="gauge"></div><div class="verdict" id="verdict"></div></div>
+      <div class="card"><h3>By severity</h3><div class="sevs" id="sevs"></div></div>
+      <div class="card"><h3>By category</h3><div class="cats"><div id="donut"></div><div class="legend" id="legend"></div></div><div class="langs" id="langs"></div></div>
+    </div>
+
+    <div class="statrow fade" id="statrow"></div>
+    <div class="card ai fade" id="aicard" style="display:none"><h3>✦ Claude triage summary</h3><div class="body" id="aisum"></div><div class="why" id="aiusage"></div></div>
+
+    <div class="two fade">
+      <div class="card"><h3>Risk hotspots</h3><div class="hot" id="hot"></div></div>
+      <div class="card">
+        <h3>Findings</h3>
+        <div class="tabs" id="tabs"></div>
+        <div class="filters">
+          <input class="search" id="q" placeholder="Search rule, file, message…">
+          <div class="sevf" id="sevf"></div>
+        </div>
+        <div class="count" id="count"></div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>SlopGuard · MIT · built for the Mycrobo AntiSlop hackathon</span><span>Runs locally. Your code never leaves this machine unless you enable AI triage, and secrets are redacted even then.</span></footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SEV=['critical','high','medium','low','info'];
+const SEVC={critical:'var(--crit)',high:'var(--high)',medium:'var(--med)',low:'var(--low)',info:'var(--info)'};
+const CATS={security:{label:'Security',c:'var(--security)',hex:'#ff4d6d',icon:'<path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/>',desc:'Leaked keys, injection, unsafe deserialization, weak crypto, prompt-injection payloads.'},
+  slop:{label:'AI Slop',c:'var(--slop)',hex:'#c084fc',icon:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',desc:'Hallucinated packages, chat residue, elided code, placeholders, duplication.'},
+  gap:{label:'Coding Gaps',c:'var(--gap)',hex:'#f5c542',icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>',desc:'Swallowed errors, missing timeouts, mutable defaults, missing tests and manifests.'},
+  'loose-end':{label:'Loose Ends',c:'var(--loose)',hex:'#22d3ee',icon:'<path d="M4 12h6l2-3 2 6 2-3h4"/>',desc:'TODO/FIXME, stubs, empty bodies, dead and unreachable code, commented-out blocks.'}};
+let DATA=null, state={cat:'all',sev:new Set(SEV),q:'',limit:40};
+
+fetch('/api/meta').then(r=>r.json()).then(m=>{
+  $('#ver').textContent='v'+m.version;
+  if(m.ai){$('#aidot').classList.add('on');$('#aitext').textContent='AI triage ready'}
+  else{$('#aitext').textContent='AI triage off';$('#aitoggle').classList.add('disabled');$('#ai').disabled=true}
+  const counts={};m.rules.forEach(r=>counts[r.category]=(counts[r.category]||0)+1);
+  $('#features').innerHTML=Object.entries(CATS).map(([k,v])=>`<div class="feat fade" style="--c:${v.c}">
+    <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${v.icon}</svg></div>
+    <h3>${v.label}</h3><p>${v.desc}</p><div class="n">${counts[k]||0} rules</div></div>`).join('');
+});
+
+const show=id=>['landing','scanning','dash'].forEach(s=>$('#'+s).style.display=s===id?(s==='scanning'?'flex':'block'):'none');
+function err(msg){const e=$('#err');e.textContent=msg;e.style.display=msg?'block':'none'}
+
+async function start(source){
+  err('');show('scanning');window.scrollTo(0,0);
+  const ai=$('#ai').checked;
+  $('#scantitle').textContent=source==='demo'?'Scanning the demo app…':'Scanning '+source;
+  const msgs=[source.startsWith('https://')?'cloning repository (shallow)…':'discovering files…','detecting languages…','running 38 detectors…','checking imports against manifests…','looking for duplicated blocks…','scoring…'];
+  if(ai)msgs.push('Claude is triaging findings…','writing executive summary…');
+  let i=0;const tick=setInterval(()=>{$('#steps').textContent='› '+msgs[Math.min(i++,msgs.length-1)]},650);$('#steps').textContent='› '+msgs[0];
+  const t0=performance.now();
+  try{
+    const r=await fetch('/api/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source,ai})});
+    const d=await r.json();
+    const wait=Math.max(0,1400-(performance.now()-t0));await new Promise(res=>setTimeout(res,wait));
+    clearInterval(tick);
+    if(!r.ok)throw new Error(d.error||'scan failed');
+    DATA=d;state={cat:'all',sev:new Set(SEV),q:'',limit:40};$('#q').value='';render();show('dash');
+    history.replaceState(null,'','#results');
+  }catch(e){clearInterval(tick);show('landing');err(e.message)}
+}
+$('#form').addEventListener('submit',e=>{e.preventDefault();const v=$('#src').value.trim();start(v||'demo')});
+$('#demo').addEventListener('click',()=>start('demo'));
+$('#rescan').addEventListener('click',()=>{show('landing');history.replaceState(null,'',' ')});
+$('#home').addEventListener('click',()=>{show('landing')});
+
+function gauge(score,grade){
+  const R=80,C=2*Math.PI*R,col=score>=80?'#2ee59d':score>=65?'#f5c542':score>=50?'#ff8a3d':'#ff4d6d';
+  $('#gauge').innerHTML=`<svg width="190" height="190" viewBox="0 0 190 190"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${col}" stop-opacity=".55"/></linearGradient></defs>
+  <circle cx="95" cy="95" r="${R}" fill="none" stroke="${col}" stroke-opacity=".14" stroke-width="14"/>
+  <circle id="arc" cx="95" cy="95" r="${R}" fill="none" stroke="url(#gg)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 95 95)" style="transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px ${col}88)"/></svg>
+  <div class="lbl"><div class="grade" style="color:${col}">${esc(grade)}</div><div class="score" id="scorenum">0 / 100</div></div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#arc').style.strokeDashoffset=C*(1-score/100)}));
+  let n=0;const step=()=>{n=Math.min(score,n+Math.max(1,Math.ceil(score/40)));$('#scorenum').textContent=n+' / 100';if(n<score)requestAnimationFrame(step)};step();
+}
+function donut(counts){
+  const total=Object.values(counts).reduce((a,b)=>a+b,0)||1,R=48,C=2*Math.PI*R;let off=0;
+  const segs=Object.keys(CATS).map(k=>{const len=C*(counts[k]||0)/total;const s=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="${CATS[k].hex}" stroke-width="16" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;off+=len;return s}).join('');
+  $('#donut').innerHTML=`<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="16"/>${segs}
+  <text x="60" y="58" text-anchor="middle" fill="#eef0f6" font-size="22" font-weight="700">${Object.values(counts).reduce((a,b)=>a+b,0)}</text><text x="60" y="76" text-anchor="middle" fill="#8a90a6" font-size="10">FINDINGS</text></svg>`;
+  $('#legend').innerHTML=Object.entries(CATS).map(([k,v])=>`<div><i style="background:${v.hex}"></i>${v.label}<b>${counts[k]||0}</b></div>`).join('');
+}
+function live(){return DATA.findings.filter(f=>f.verdict!=='false_positive')}
+
+function render(){
+  const d=DATA,s=d.stats,L=live();
+  $('#dtitle').textContent=d.root;
+  $('#dmeta').textContent=`${s.files_scanned} files · ${s.lines_scanned.toLocaleString()} lines · scanned in ${s.duration_s.toFixed(2)}s`+(d.ai?` · AI triage by ${d.ai.usage.model}`:'');
+  gauge(d.score,d.grade);
+  const crit=L.filter(f=>f.severity==='critical').length,high=L.filter(f=>f.severity==='high').length;
+  $('#verdict').textContent=crit?`${crit} critical issue${crit>1?'s':''} must be fixed before shipping.`:high?`${high} high-severity issues need attention.`:L.length?'No blockers. Clean up the remaining hygiene items.':'Clean bill of health. Nothing to report.';
+  const sc={};SEV.forEach(k=>sc[k]=L.filter(f=>f.severity===k).length);const mx=Math.max(1,...Object.values(sc));
+  $('#sevs').innerHTML=SEV.map(k=>`<div class="sev"><span style="color:${SEVC[k]};text-transform:capitalize">${k}</span><div class="bar"><i data-w="${sc[k]/mx*100}" style="background:${SEVC[k]}"></i></div><b>${sc[k]}</b></div>`).join('');
+  const cc={};Object.keys(CATS).forEach(k=>cc[k]=L.filter(f=>f.category===k).length);donut(cc);
+  $('#langs').innerHTML=Object.entries(s.languages).map(([k,v])=>`<span class="chip">${esc(k)} · ${v}</span>`).join('');
+  const dismissed=d.findings.length-L.length,ai=d.findings.filter(f=>f.source==='ai').length;
+  $('#statrow').innerHTML=[[L.length,'open findings'],[new Set(L.filter(f=>f.path).map(f=>f.path)).size,'files affected'],[d.ai?dismissed:s.suppressed,d.ai?'dismissed by Claude':'suppressed inline'],[d.ai?ai:Object.keys(s.languages).length,d.ai?'new issues found by Claude':'languages detected']]
+    .map(([v,k])=>`<div class="card stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+  if(d.ai&&d.ai.summary){$('#aicard').style.display='block';$('#aisum').textContent=d.ai.summary;const u=d.ai.usage;$('#aiusage').textContent=`${u.requests} requests · ${u.tool_calls} tool calls`+(u.estimated_cost_usd!=null?` · ~$${u.estimated_cost_usd}`:'')}else $('#aicard').style.display='none';
+  const hmx=Math.max(1,...d.files.map(f=>f.risk));
+  $('#hot').innerHTML=d.files.length?d.files.map(f=>`<div class="row" data-path="${esc(f.path)}"><div class="p"><span title="${esc(f.path)}">${esc(f.path)}</span><span style="color:${SEVC[f.worst]}">${f.count}</span></div><div class="bar"><i data-w="${f.risk/hmx*100}" style="background:linear-gradient(90deg,${SEVC[f.worst]},transparent 140%)"></i></div></div>`).join(''):'<div class="empty">No risky files 🎉</div>';
+  document.querySelectorAll('#hot .row').forEach(r=>r.addEventListener('click',()=>{state.q=r.dataset.path;$('#q').value=r.dataset.path;state.limit=40;list();$('#list').scrollIntoView({behavior:'smooth',block:'start'})}));
+  $('#sevf').innerHTML=SEV.map(k=>`<button class="on" data-s="${k}" style="color:${SEVC[k]};border-color:${SEVC[k]}55">${k}</button>`).join('');
+  document.querySelectorAll('#sevf button').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.s;state.sev.has(k)?state.sev.delete(k):state.sev.add(k);b.classList.toggle('on');list()}));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('[data-w]').forEach(i=>i.style.width=i.dataset.w+'%')));
+  list();
+}
+$('#q').addEventListener('input',e=>{state.q=e.target.value;state.limit=40;list()});
+
+function list(){
+  const all=DATA.findings,q=state.q.toLowerCase();
+  const tabs=[['all','All',all.length],...Object.entries(CATS).map(([k,v])=>[k,v.label,all.filter(f=>f.category===k).length])];
+  $('#tabs').innerHTML=tabs.map(([k,l,n])=>`<button class="tab ${state.cat===k?'on':''}" data-c="${k}">${l}<em>${n}</em></button>`).join('');
+  document.querySelectorAll('#tabs .tab').forEach(t=>t.addEventListener('click',()=>{state.cat=t.dataset.c;state.limit=40;list()}));
+  const rows=all.filter(f=>(state.cat==='all'||f.category===state.cat)&&state.sev.has(f.severity)&&(!q||[f.rule_id,f.title,f.path,f.message,f.ai_rationale,f.snippet].join(' ').toLowerCase().includes(q)));
+  $('#count').textContent=`${rows.length} of ${all.length} findings`;
+  if(!rows.length){$('#list').innerHTML='<div class="empty">Nothing matches these filters.</div>';return}
+  $('#list').innerHTML=rows.slice(0,state.limit).map((f,i)=>{const c=CATS[f.category]||CATS.gap;
+    const tag=f.verdict==='confirmed'?`<span class="tag ai">${f.source==='ai'?'✦ found by Claude':'✦ confirmed by Claude'}</span>`:f.verdict==='false_positive'?'<span class="tag">dismissed by Claude</span>':f.verdict==='needs_review'?'<span class="tag">needs review</span>':'';
+    return `<div class="f ${f.verdict==='false_positive'?'dismissed':''} ${i===0?'open':''}">
+    <div class="fh"><span class="badge b-${f.severity}">${f.severity}</span>
+      <div class="ft"><div class="t">${esc(f.title)} <span class="rid">${esc(f.rule_id)}</span><span class="tag cat" style="--c:${c.c}">${c.label}</span>${tag}</div>
+      <div class="loc">${esc(f.path||'repository-level')}${f.line?':'+f.line:''}</div></div>
+      <span class="chev">›</span></div>
+    <div class="fb"><p>${esc(f.ai_rationale||f.message)}</p>
+      ${f.snippet&&f.path?`<pre><span class="ln">${f.line||''}</span>${esc(f.snippet)}</pre>`:''}
+      <div class="fix"><b>Fix</b><span>${esc(f.fix)}</span></div>
+      <div class="why">confidence ${Math.round(f.confidence*100)}% · source: ${esc(f.source)} · suppress with <code>slopguard: ignore[${esc(f.rule_id)}]</code></div></div></div>`}).join('')
+    +(rows.length>state.limit?`<button class="btn ghost more" id="more">Show ${Math.min(40,rows.length-state.limit)} more</button>`:'');
+  document.querySelectorAll('#list .fh').forEach(h=>h.addEventListener('click',()=>h.parentElement.classList.toggle('open')));
+  const m=$('#more');if(m)m.addEventListener('click',()=>{state.limit+=40;list()});
+}
+</script>
+</body>
+</html>

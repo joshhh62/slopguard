@@ -45,6 +45,19 @@ The useful part of the log is the corrections:
 | Python 3.10 has no `tomllib`, so config silently didn't load there. | Raised the floor to 3.11 instead of shipping a silent behaviour difference. |
 | A test inspected a message list that the agent mutates after sending. | The fake client now snapshots requests. The real SDK serialises immediately, so production was never affected. |
 
+## Iteration 2: web dashboard
+
+Feedback from the first review was that a CLI and a static report don't show the product well enough. We added `slopguard serve`, a standard-library HTTP server with a single-page dashboard: GitHub URL or folder input, animated score gauge, severity and category charts, risk hotspots, filterable findings, and exports.
+
+The AI drafted the UI and API. Each security decision was reviewed by hand:
+* bind to localhost only,
+* reject cross-origin POSTs,
+* accept only `https://github.com/<owner>/<repo>` sources (a shallow `git clone` with prompts disabled and a timeout, into a temp dir that is always deleted),
+* send a strict Content-Security-Policy,
+* escape every value before it reaches the DOM.
+
+It was checked against a real public repository (`pallets/itsdangerous`: 26 files scanned in 0.29s, grade B). Three API tests cover the page, the scan and export endpoints, and the rejection paths.
+
 ## Human decisions
 
 * The name, scope, rule catalogue and severity policy (a critical finding caps the grade, and AI-dismissed findings stay visible but unscored).
@@ -53,7 +66,7 @@ The useful part of the log is the corrections:
 
 ## Verification
 
-* `pytest`: the full suite passes locally on Windows / Python 3.14. CI runs Linux and Windows on Python 3.11–3.13.
+* `pytest`: the full suite (34 tests) passes locally on Windows / Python 3.14. CI runs Linux and Windows on Python 3.11–3.13.
 * `slopguard scan . --fail-on medium`: SlopGuard's own source has 0 open findings (3 justified inline suppressions in the HTML report template, where every value goes through `esc()`).
 * `slopguard scan examples/vulnerable-app`: every planted issue across Python, JavaScript, Go, Java, YAML and `.env` is detected.
 * The agent loop is verified with a scripted client (verdicts, new issues, parallel tool results, sandbox escape attempts, refusals, network failures). A live `--ai` run needs an `ANTHROPIC_API_KEY`.
