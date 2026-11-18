@@ -1,0 +1,2846 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SlopGuard",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/joshhh62/slopguard",
+          "rules": [
+            {
+              "id": "GAP001",
+              "name": "Errorsilentlyswallowed",
+              "shortDescription": {
+                "text": "Error silently swallowed"
+              },
+              "fullDescription": {
+                "text": "An exception/error is caught and discarded, hiding failures and corrupting state silently."
+              },
+              "help": {
+                "text": "Handle the error, log it with context, or let it propagate. Catch the narrowest error type possible."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "GAP002",
+              "name": "Bareexcept",
+              "shortDescription": {
+                "text": "Bare except"
+              },
+              "fullDescription": {
+                "text": "`except:` also catches KeyboardInterrupt and SystemExit and masks programming errors."
+              },
+              "help": {
+                "text": "Catch a specific exception class (or at minimum `except Exception:`) and handle it."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP003",
+              "name": "Mutabledefaultargument",
+              "shortDescription": {
+                "text": "Mutable default argument"
+              },
+              "fullDescription": {
+                "text": "Default values are created once; a list/dict/set default is shared and mutated across calls."
+              },
+              "help": {
+                "text": "Default to None and create the object inside the function."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP004",
+              "name": "Noautomatedtests",
+              "shortDescription": {
+                "text": "No automated tests"
+              },
+              "fullDescription": {
+                "text": "The repository has source code but no test files, so regressions go unnoticed."
+              },
+              "help": {
+                "text": "Add a test suite for the critical paths and run it in CI."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP005",
+              "name": "Missingprojecthygienefile",
+              "shortDescription": {
+                "text": "Missing project hygiene file"
+              },
+              "fullDescription": {
+                "text": "Standard project files are missing (README, .gitignore, license, dependency manifest)."
+              },
+              "help": {
+                "text": "Add the missing file so others can build, run and safely contribute to the project."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP006",
+              "name": "Networkcallwithouttimeout",
+              "shortDescription": {
+                "text": "Network call without timeout"
+              },
+              "fullDescription": {
+                "text": "HTTP requests without a timeout can hang a worker forever when the remote end stalls."
+              },
+              "help": {
+                "text": "Pass an explicit timeout (e.g. requests.get(url, timeout=10))."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP007",
+              "name": "Discardederrorreturn",
+              "shortDescription": {
+                "text": "Discarded error return"
+              },
+              "fullDescription": {
+                "text": "The error result of a call is assigned to `_` and never checked."
+              },
+              "help": {
+                "text": "Check the error and handle or wrap it (`if err != nil { return fmt.Errorf(...: %w, err) }`)."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "GAP009",
+              "name": "Unpinneddependency",
+              "shortDescription": {
+                "text": "Unpinned dependency"
+              },
+              "fullDescription": {
+                "text": "A requirement has no version constraint, so builds are not reproducible and can pull breaking or malicious releases."
+              },
+              "help": {
+                "text": "Pin a version or compatible range (package>=1.2,<2) and commit a lock file."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "GAP011",
+              "name": "Exceptionsilentlyswallowed",
+              "shortDescription": {
+                "text": "Exception silently swallowed"
+              },
+              "fullDescription": {
+                "text": "An except block discards the error (only `pass`/`...`/`continue`), hiding real failures."
+              },
+              "help": {
+                "text": "Log the exception with context, re-raise, or catch only the specific error you expect."
+              },
+              "properties": {
+                "tags": [
+                  "gap"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "LOOSE001",
+              "name": "UnresolvedTODO/FIXME",
+              "shortDescription": {
+                "text": "Unresolved TODO/FIXME"
+              },
+              "fullDescription": {
+                "text": "A work-in-progress marker was committed. FIXME/HACK/XXX/BUG usually mean known-broken code."
+              },
+              "help": {
+                "text": "Resolve it, or move it into the issue tracker and link the ticket in the comment."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "LOOSE002",
+              "name": "Commented-outcode",
+              "shortDescription": {
+                "text": "Commented-out code"
+              },
+              "fullDescription": {
+                "text": "A block of code was disabled by commenting it out. Version control already remembers old code."
+              },
+              "help": {
+                "text": "Delete the block; if it must come back, recover it from git history."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "LOOSE003",
+              "name": "Stubbed-outimplementation",
+              "shortDescription": {
+                "text": "Stubbed-out implementation"
+              },
+              "fullDescription": {
+                "text": "The function body only throws 'not implemented' - callers will crash at runtime."
+              },
+              "help": {
+                "text": "Implement the behaviour, or remove the code path and its callers."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "LOOSE004",
+              "name": "Unusedimport",
+              "shortDescription": {
+                "text": "Unused import"
+              },
+              "fullDescription": {
+                "text": "An imported name is never used - dead weight left over from refactors or generation."
+              },
+              "help": {
+                "text": "Remove the import."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "LOOSE005",
+              "name": "Functionisneverreferenced",
+              "shortDescription": {
+                "text": "Function is never referenced"
+              },
+              "fullDescription": {
+                "text": "A top-level function is defined but its name appears nowhere else in the repository."
+              },
+              "help": {
+                "text": "Delete it if it is dead, or wire it up / export it if it was meant to be used."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "LOOSE006",
+              "name": "Unreachablecode",
+              "shortDescription": {
+                "text": "Unreachable code"
+              },
+              "fullDescription": {
+                "text": "Statements after return/raise/break/continue can never run."
+              },
+              "help": {
+                "text": "Delete the dead statements or fix the control flow that was meant to reach them."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "LOOSE007",
+              "name": "Emptyfunctionbody",
+              "shortDescription": {
+                "text": "Empty function body"
+              },
+              "fullDescription": {
+                "text": "A function's body is only `pass`/`...` - it silently does nothing when called."
+              },
+              "help": {
+                "text": "Implement it, raise NotImplementedError with a reason, or delete it."
+              },
+              "properties": {
+                "tags": [
+                  "loose-end"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SEC001",
+              "name": "Hard-codedprovidercredential",
+              "shortDescription": {
+                "text": "Hard-coded provider credential"
+              },
+              "fullDescription": {
+                "text": "A credential with a vendor-specific format (AWS, GitHub, Stripe, ...) is committed to source."
+              },
+              "help": {
+                "text": "Revoke and rotate the credential now, then load it from an environment variable or secret manager."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "9.5"
+              }
+            },
+            {
+              "id": "SEC002",
+              "name": "Hard-codedsecretinassignment",
+              "shortDescription": {
+                "text": "Hard-coded secret in assignment"
+              },
+              "fullDescription": {
+                "text": "A variable named like a password/token/key is assigned a literal, high-entropy value."
+              },
+              "help": {
+                "text": "Move the value to an environment variable or secret store and rotate it if it was ever real."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC010",
+              "name": "Dynamiccodeexecution",
+              "shortDescription": {
+                "text": "Dynamic code execution"
+              },
+              "fullDescription": {
+                "text": "eval/exec-style call executes a string as code; attacker-influenced input becomes remote code execution."
+              },
+              "help": {
+                "text": "Replace with a safe parser (json.loads, ast.literal_eval, a lookup table) or an explicit dispatch."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC011",
+              "name": "Shellcommandbuiltatruntime",
+              "shortDescription": {
+                "text": "Shell command built at runtime"
+              },
+              "fullDescription": {
+                "text": "A command is run through a shell; interpolated input enables command injection."
+              },
+              "help": {
+                "text": "Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC012",
+              "name": "SQLbuiltwithstringinterpolation",
+              "shortDescription": {
+                "text": "SQL built with string interpolation"
+              },
+              "fullDescription": {
+                "text": "A SQL statement is assembled by concatenation/formatting instead of bound parameters."
+              },
+              "help": {
+                "text": "Use parameterised queries (cursor.execute(sql, params), prepared statements, or the ORM's query builder)."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC013",
+              "name": "Unsafedeserialization",
+              "shortDescription": {
+                "text": "Unsafe deserialization"
+              },
+              "fullDescription": {
+                "text": "Deserializing untrusted data with this API can execute arbitrary code."
+              },
+              "help": {
+                "text": "Use a data-only format (JSON) or a safe loader (yaml.safe_load); never unpickle untrusted bytes."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC014",
+              "name": "Weakcryptographicprimitive",
+              "shortDescription": {
+                "text": "Weak cryptographic primitive"
+              },
+              "fullDescription": {
+                "text": "MD5/SHA-1/DES/ECB are broken for security purposes (passwords, signatures, tokens)."
+              },
+              "help": {
+                "text": "Use SHA-256+ for integrity, bcrypt/argon2/scrypt for passwords, and AES-GCM for encryption."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SEC015",
+              "name": "TLScertificateverificationdisabled",
+              "shortDescription": {
+                "text": "TLS certificate verification disabled"
+              },
+              "fullDescription": {
+                "text": "Disabling certificate checks allows trivial man-in-the-middle attacks."
+              },
+              "help": {
+                "text": "Remove the override; if a private CA is needed, configure its bundle explicitly."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC016",
+              "name": "Predictablerandomnessforasecurityvalue",
+              "shortDescription": {
+                "text": "Predictable randomness for a security value"
+              },
+              "fullDescription": {
+                "text": "A non-cryptographic RNG generates something that looks like a token, password, OTP or key."
+              },
+              "help": {
+                "text": "Use a CSPRNG: secrets.token_urlsafe(), crypto.randomBytes()/crypto.randomUUID(), SecureRandom."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SEC017",
+              "name": "UnescapedHTMLsink",
+              "shortDescription": {
+                "text": "Unescaped HTML sink"
+              },
+              "fullDescription": {
+                "text": "Raw HTML is injected into the page; untrusted data here is cross-site scripting."
+              },
+              "help": {
+                "text": "Render text with textContent / framework escaping, or sanitise with a vetted library (DOMPurify)."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SEC018",
+              "name": "Debugmodeenabled",
+              "shortDescription": {
+                "text": "Debug mode enabled"
+              },
+              "fullDescription": {
+                "text": "Debug mode exposes stack traces, interactive debuggers or secrets in production."
+              },
+              "help": {
+                "text": "Drive debug flags from the environment and default them to off."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SEC020",
+              "name": "Plain-HTTPendpoint",
+              "shortDescription": {
+                "text": "Plain-HTTP endpoint"
+              },
+              "fullDescription": {
+                "text": "Traffic to this endpoint is unencrypted and can be read or modified in transit."
+              },
+              "help": {
+                "text": "Use https:// (or make the scheme configurable for local development)."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "SEC021",
+              "name": "Secretsfilecommitted",
+              "shortDescription": {
+                "text": "Secrets file committed"
+              },
+              "fullDescription": {
+                "text": "Environment or key files are part of the repository."
+              },
+              "help": {
+                "text": "Delete the file from version control (and history), rotate its secrets, and add it to .gitignore."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SEC022",
+              "name": "Prompt-injectionpayloadaimedatAIagents",
+              "shortDescription": {
+                "text": "Prompt-injection payload aimed at AI agents"
+              },
+              "fullDescription": {
+                "text": "Text addressed to an AI assistant tries to override its instructions. Coding agents and AI reviewers that read this repo may obey it."
+              },
+              "help": {
+                "text": "Remove the text and audit who added it; never let repository content steer automation."
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SLOP001",
+              "name": "LLMchatresidueincode",
+              "shortDescription": {
+                "text": "LLM chat residue in code"
+              },
+              "fullDescription": {
+                "text": "Conversational assistant text or a markdown fence was pasted into a source file."
+              },
+              "help": {
+                "text": "Delete the conversational text and review the surrounding code - it was likely never read by a human."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SLOP002",
+              "name": "Elidedorplaceholderimplementation",
+              "shortDescription": {
+                "text": "Elided or placeholder implementation"
+              },
+              "fullDescription": {
+                "text": "Generated code was truncated (an elided 'rest of the code' marker or a 'your logic here' stub), so behaviour is missing."
+              },
+              "help": {
+                "text": "Write the missing implementation, or delete the stub and fail loudly until it exists."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SLOP003",
+              "name": "Placeholdervalueleftincode",
+              "shortDescription": {
+                "text": "Placeholder value left in code"
+              },
+              "fullDescription": {
+                "text": "A template value (an API-key placeholder, 'change me', lorem ipsum) was never replaced."
+              },
+              "help": {
+                "text": "Read the value from configuration and fail fast with a clear error when it is missing."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SLOP004",
+              "name": "Undeclared(possiblyhallucinated)dependency",
+              "shortDescription": {
+                "text": "Undeclared (possibly hallucinated) dependency"
+              },
+              "fullDescription": {
+                "text": "Code imports a package that no manifest declares. AI tools often invent package names that attackers then register (slopsquatting)."
+              },
+              "help": {
+                "text": "Verify the package really exists and is the one you intend, then declare and pin it - or remove the import."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "8.0"
+              }
+            },
+            {
+              "id": "SLOP005",
+              "name": "Duplicatedcodeblock",
+              "shortDescription": {
+                "text": "Duplicated code block"
+              },
+              "fullDescription": {
+                "text": "The same block of logic appears in more than one place; fixes applied to one copy will miss the others."
+              },
+              "help": {
+                "text": "Extract the shared logic into one function/module and call it from both places."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "5.5"
+              }
+            },
+            {
+              "id": "SLOP006",
+              "name": "Commentnarratesobviouscode",
+              "shortDescription": {
+                "text": "Comment narrates obvious code"
+              },
+              "fullDescription": {
+                "text": "Boilerplate comments like '# Initialize variables' or '// Return the result' add noise, not intent."
+              },
+              "help": {
+                "text": "Delete the comment, or replace it with the *why* behind the code."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "3.0"
+              }
+            },
+            {
+              "id": "SLOP007",
+              "name": "Debuggingleftover",
+              "shortDescription": {
+                "text": "Debugging leftover"
+              },
+              "fullDescription": {
+                "text": "A debugger hook or ad-hoc debug print was left in committed code."
+              },
+              "help": {
+                "text": "Remove it, or route the message through the project's logger at debug level."
+              },
+              "properties": {
+                "tags": [
+                  "slop"
+                ],
+                "security-severity": "3.0"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SEC001",
+          "level": "error",
+          "message": {
+            "text": "Database URL with password committed to source.\n\nFix: Revoke and rotate the credential now, then load it from an environment variable or secret manager."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 14
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "50b992b8eea8ab75"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP011",
+          "level": "error",
+          "message": {
+            "text": "Catches everything and silently ignores it.\n\nFix: Log the exception with context, re-raise, or catch only the specific error you expect."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 57
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "21336e8c3988905b"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP011",
+          "level": "error",
+          "message": {
+            "text": "Catches Exception and silently ignores it.\n\nFix: Log the exception with context, re-raise, or catch only the specific error you expect."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "04ebfd0ff696cfd9"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP001",
+          "level": "error",
+          "message": {
+            "text": "Error is caught and ignored.\n\nFix: Handle the error, log it with context, or let it propagate. Catch the narrowest error type possible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "a555fe546339d987"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP001",
+          "level": "error",
+          "message": {
+            "text": "Error is caught and ignored.\n\nFix: Handle the error, log it with context, or let it propagate. Catch the narrowest error type possible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "d990d1efb65863bd"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP001",
+          "level": "error",
+          "message": {
+            "text": "Error is caught and ignored.\n\nFix: Handle the error, log it with context, or let it propagate. Catch the narrowest error type possible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3c8d256e53ba7385"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC021",
+          "level": "error",
+          "message": {
+            "text": "`.env` looks like a secrets file checked into the repository.\n\nFix: Delete the file from version control (and history), rotate its secrets, and add it to .gitignore."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".env"
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "976b3648ad04812f"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.85,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC002",
+          "level": "error",
+          "message": {
+            "text": "`STRIPE_SECRET` is assigned a literal secret (entropy 4.4 bits/char).\n\nFix: Move the value to an environment variable or secret store and rotate it if it was ever real."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".env"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "78b839659b1c4c1a"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.9392317422778761,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC002",
+          "level": "error",
+          "message": {
+            "text": "`DB_PASSWORD` is assigned a literal secret (entropy 4.2 bits/char).\n\nFix: Move the value to an environment variable or secret store and rotate it if it was ever real."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 13
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8593c5325d0a2bc8"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.9169925001442312,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC012",
+          "level": "error",
+          "message": {
+            "text": "A SQL statement is assembled by concatenation/formatting instead of bound parameters.\n\nFix: Use parameterised queries (cursor.execute(sql, params), prepared statements, or the ORM's query builder)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "03cd88e9a9e0a582"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC011",
+          "level": "error",
+          "message": {
+            "text": "A command is run through a shell; interpolated input enables command injection.\n\nFix: Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 30
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "08c7de95ba71ddb0"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC011",
+          "level": "error",
+          "message": {
+            "text": "A command is run through a shell; interpolated input enables command injection.\n\nFix: Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "d829ef80a68c8637"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC013",
+          "level": "error",
+          "message": {
+            "text": "Deserializing untrusted data with this API can execute arbitrary code.\n\nFix: Use a data-only format (JSON) or a safe loader (yaml.safe_load); never unpickle untrusted bytes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "917b9a9b0da8000d"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC013",
+          "level": "error",
+          "message": {
+            "text": "Deserializing untrusted data with this API can execute arbitrary code.\n\nFix: Use a data-only format (JSON) or a safe loader (yaml.safe_load); never unpickle untrusted bytes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "a8fe37a37177e074"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC015",
+          "level": "error",
+          "message": {
+            "text": "Disabling certificate checks allows trivial man-in-the-middle attacks.\n\nFix: Remove the override; if a private CA is needed, configure its bundle explicitly."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "e377b260d41439e1"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC010",
+          "level": "error",
+          "message": {
+            "text": "eval/exec-style call executes a string as code; attacker-influenced input becomes remote code execution.\n\nFix: Replace with a safe parser (json.loads, ast.literal_eval, a lookup table) or an explicit dispatch."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 56
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "89e47cc58e7ce3fe"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC002",
+          "level": "error",
+          "message": {
+            "text": "`password` is assigned a literal secret (entropy 3.8 bits/char).\n\nFix: Move the value to an environment variable or secret store and rotate it if it was ever real."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "c83e2a56f378a696"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8826874881864638,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC013",
+          "level": "error",
+          "message": {
+            "text": "Deserializing untrusted data with this API can execute arbitrary code.\n\nFix: Use a data-only format (JSON) or a safe loader (yaml.safe_load); never unpickle untrusted bytes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "9a43792590c8b11d"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC011",
+          "level": "error",
+          "message": {
+            "text": "A command is run through a shell; interpolated input enables command injection.\n\nFix: Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 21
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "91e2c11da8ea1a41"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC022",
+          "level": "error",
+          "message": {
+            "text": "Text addressed to an AI assistant tries to override its instructions. Coding agents and AI reviewers that read this repo may obey it.\n\nFix: Remove the text and audit who added it; never let repository content steer automation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config.yaml"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "f8d111258b48e6e0"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC012",
+          "level": "error",
+          "message": {
+            "text": "A SQL statement is assembled by concatenation/formatting instead of bound parameters.\n\nFix: Use parameterised queries (cursor.execute(sql, params), prepared statements, or the ORM's query builder)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "f28bdf83df58068d"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC011",
+          "level": "error",
+          "message": {
+            "text": "A command is run through a shell; interpolated input enables command injection.\n\nFix: Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 16
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "1a2354b17781c7ea"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC010",
+          "level": "error",
+          "message": {
+            "text": "eval/exec-style call executes a string as code; attacker-influenced input becomes remote code execution.\n\nFix: Replace with a safe parser (json.loads, ast.literal_eval, a lookup table) or an explicit dispatch."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "b080c807d97cfd7e"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC012",
+          "level": "error",
+          "message": {
+            "text": "A SQL statement is assembled by concatenation/formatting instead of bound parameters.\n\nFix: Use parameterised queries (cursor.execute(sql, params), prepared statements, or the ORM's query builder)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 14
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "44af884e240cb9fb"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC011",
+          "level": "error",
+          "message": {
+            "text": "A command is run through a shell; interpolated input enables command injection.\n\nFix: Pass an argument list without a shell (subprocess.run([...]), execFile, ProcessBuilder) and validate inputs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "0d7dcd0553d1e7a5"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC015",
+          "level": "error",
+          "message": {
+            "text": "Disabling certificate checks allows trivial man-in-the-middle attacks.\n\nFix: Remove the override; if a private CA is needed, configure its bundle explicitly."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "2564b9be09ada43f"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP004",
+          "level": "error",
+          "message": {
+            "text": "`flask_jwt_magic` is imported but not declared in any Python manifest.\n\nFix: Verify the package really exists and is the one you intend, then declare and pin it - or remove the import."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "888427c0b0b4b491"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.75,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP004",
+          "level": "error",
+          "message": {
+            "text": "`left-pad-pro-max` is imported but not declared in any package.json.\n\nFix: Verify the package really exists and is the one you intend, then declare and pin it - or remove the import."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "1b3bbc8666e56d0c"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.75,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP001",
+          "level": "error",
+          "message": {
+            "text": "Conversational assistant text or a markdown fence was pasted into a source file.\n\nFix: Delete the conversational text and review the surrounding code - it was likely never read by a human."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 8
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "97ae2d6e96f034ca"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP002",
+          "level": "error",
+          "message": {
+            "text": "Generated code was truncated (an elided 'rest of the code' marker or a 'your logic here' stub), so behaviour is missing.\n\nFix: Write the missing implementation, or delete the stub and fail loudly until it exists."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 40
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "ef1ddaf3664f223f"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP004",
+          "level": "warning",
+          "message": {
+            "text": "5 source files (229 lines) and zero test files.\n\nFix: Add a test suite for the critical paths and run it in CI."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "0e4c445c13622668"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP005",
+          "level": "warning",
+          "message": {
+            "text": "No .gitignore - build output and secrets are easy to commit by accident.\n\nFix: Add the missing file so others can build, run and safely contribute to the project."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "."
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "678eb1eeede6cbbc"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP003",
+          "level": "warning",
+          "message": {
+            "text": "`fetch_avatar()` has a mutable default `{}`.\n\nFix: Default to None and create the object inside the function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 46
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "0838755fd282b35a"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP006",
+          "level": "warning",
+          "message": {
+            "text": "HTTP requests without a timeout can hang a worker forever when the remote end stalls.\n\nFix: Pass an explicit timeout (e.g. requests.get(url, timeout=10))."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "58ced27fe4c67604"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP002",
+          "level": "warning",
+          "message": {
+            "text": "Bare `except:` catches every exception.\n\nFix: Catch a specific exception class (or at minimum `except Exception:`) and handle it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 57
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8b39265da6c6e76c"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP007",
+          "level": "warning",
+          "message": {
+            "text": "The error result of a call is assigned to `_` and never checked.\n\nFix: Check the error and handle or wrap it (`if err != nil { return fmt.Errorf(...: %w, err) }`)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "072be53e83b594d7"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP007",
+          "level": "warning",
+          "message": {
+            "text": "The error result of a call is assigned to `_` and never checked.\n\nFix: Check the error and handle or wrap it (`if err != nil { return fmt.Errorf(...: %w, err) }`)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3faa89af5eef2dbb"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE007",
+          "level": "warning",
+          "message": {
+            "text": "`send_welcome_email()` has an empty body.\n\nFix: Implement it, raise NotImplementedError with a reason, or delete it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 61
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "d1ad4484dce0c87f"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE006",
+          "level": "warning",
+          "message": {
+            "text": "Unreachable after `return` on line 67.\n\nFix: Delete the dead statements or fix the control flow that was meant to reach them."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 68
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "e474fc6e6683a35b"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE003",
+          "level": "warning",
+          "message": {
+            "text": "The function body only throws 'not implemented' - callers will crash at runtime.\n\nFix: Implement the behaviour, or remove the code path and its callers."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 72
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "35474830b1a704fb"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE001",
+          "level": "warning",
+          "message": {
+            "text": "FIXME left in code: tax rules are wrong for international orders\n\nFix: Resolve it, or move it into the issue tracker and link the ticket in the comment."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "222bfc7a3b289acd"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE003",
+          "level": "warning",
+          "message": {
+            "text": "The function body only throws 'not implemented' - callers will crash at runtime.\n\nFix: Implement the behaviour, or remove the code path and its callers."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8debbb7b46f9a23a"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE003",
+          "level": "warning",
+          "message": {
+            "text": "The function body only throws 'not implemented' - callers will crash at runtime.\n\nFix: Implement the behaviour, or remove the code path and its callers."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "74192141b137b123"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC018",
+          "level": "warning",
+          "message": {
+            "text": "Debug mode exposes stack traces, interactive debuggers or secrets in production.\n\nFix: Drive debug flags from the environment and default them to off."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".env"
+                },
+                "region": {
+                  "startLine": 2
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "58a899c2bf9625fd"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC014",
+          "level": "warning",
+          "message": {
+            "text": "MD5/SHA-1/DES/ECB are broken for security purposes (passwords, signatures, tokens).\n\nFix: Use SHA-256+ for integrity, bcrypt/argon2/scrypt for passwords, and AES-GCM for encryption."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 43
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "0d5fe098699b1353"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC018",
+          "level": "warning",
+          "message": {
+            "text": "Debug mode exposes stack traces, interactive debuggers or secrets in production.\n\nFix: Drive debug flags from the environment and default them to off."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 80
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "7c6b94614e5de3bb"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC016",
+          "level": "warning",
+          "message": {
+            "text": "A non-cryptographic RNG generates something that looks like a token, password, OTP or key.\n\nFix: Use a CSPRNG: secrets.token_urlsafe(), crypto.randomBytes()/crypto.randomUUID(), SecureRandom."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "b9b23c93c8d3bac8"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC014",
+          "level": "warning",
+          "message": {
+            "text": "MD5/SHA-1/DES/ECB are broken for security purposes (passwords, signatures, tokens).\n\nFix: Use SHA-256+ for integrity, bcrypt/argon2/scrypt for passwords, and AES-GCM for encryption."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "billing/Invoice.java"
+                },
+                "region": {
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "5b74dd3f3eff61b3"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC018",
+          "level": "warning",
+          "message": {
+            "text": "Debug mode exposes stack traces, interactive debuggers or secrets in production.\n\nFix: Drive debug flags from the environment and default them to off."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config.yaml"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3941c62fa9d0fe7c"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC017",
+          "level": "warning",
+          "message": {
+            "text": "Raw HTML is injected into the page; untrusted data here is cross-site scripting.\n\nFix: Render text with textContent / framework escaping, or sanitise with a vetted library (DOMPurify)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 25
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "6edadcc0c2a6f985"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC016",
+          "level": "warning",
+          "message": {
+            "text": "A non-cryptographic RNG generates something that looks like a token, password, OTP or key.\n\nFix: Use a CSPRNG: secrets.token_urlsafe(), crypto.randomBytes()/crypto.randomUUID(), SecureRandom."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "c3dac89a9955ec41"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC014",
+          "level": "warning",
+          "message": {
+            "text": "MD5/SHA-1/DES/ECB are broken for security purposes (passwords, signatures, tokens).\n\nFix: Use SHA-256+ for integrity, bcrypt/argon2/scrypt for passwords, and AES-GCM for encryption."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "worker/main.go"
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "6c16b0802adbf570"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP003",
+          "level": "warning",
+          "message": {
+            "text": "A template value (an API-key placeholder, 'change me', lorem ipsum) was never replaced.\n\nFix: Read the value from configuration and fail fast with a clear error when it is missing."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8eb04a8a0df2065f"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP005",
+          "level": "warning",
+          "message": {
+            "text": "6+ line block duplicated from earlier in this file (line 20).\n\nFix: Extract the shared logic into one function/module and call it from both places."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 30
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "b7ae87a356f29bcd"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.85,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "GAP009",
+          "level": "note",
+          "message": {
+            "text": "`flask` has no version constraint.\n\nFix: Pin a version or compatible range (package>=1.2,<2) and commit a lock file."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "55572a332c32f2c0"
+          },
+          "properties": {
+            "category": "gap",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE004",
+          "level": "note",
+          "message": {
+            "text": "`flask_jwt_magic` is imported but never used.\n\nFix: Remove the import."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 9
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "0df6b2b672aa74fc"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.9,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`get_user` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 19
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "d543f4a84b5670e0"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`hash_password` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 42
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "55bb3f6d7d66820a"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`fetch_avatar` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 46
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "2d33d80b255888d3"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`calculate` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 54
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "17b197b790cfb203"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`send_welcome_email` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 61
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "72f357172f0e0195"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE001",
+          "level": "note",
+          "message": {
+            "text": "TODO left in code: actually send the email\n\nFix: Resolve it, or move it into the issue tracker and link the ticket in the comment."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 62
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "b91e90654dedd4f3"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.95,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`legacy_export` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3dee729de5e3dcd1"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`refund_payment` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3691c0cd3b23ce46"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE002",
+          "level": "note",
+          "message": {
+            "text": "3 consecutive lines of commented-out code (lines 75-77).\n\nFix: Delete the block; if it must come back, recover it from git history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 75
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "3b531aae463dfb04"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.75,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`make_reset_token` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 6
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "9a660931b5430e89"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`load_config` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8ace3ac6e2631bcb"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`normalize_user_record` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 19
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "680c34935964dfb7"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`normalize_admin_record` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/utils.py"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "50fee116380c3615"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`renderBanner` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 24
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "9e91bb5869209c4d"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`sessionToken` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "95a2e821318659a1"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`loadProfile` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "23bb6fe2aec9563e"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "LOOSE005",
+          "level": "note",
+          "message": {
+            "text": "`chargeCard` is defined but never referenced anywhere in the repo.\n\nFix: Delete it if it is dead, or wire it up / export it if it was meant to be used."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 39
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "94ef512ab3884a4a"
+          },
+          "properties": {
+            "category": "loose-end",
+            "confidence": 0.6,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SEC020",
+          "level": "note",
+          "message": {
+            "text": "Traffic to this endpoint is unencrypted and can be read or modified in transit.\n\nFix: Use https:// (or make the scheme configurable for local development)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 35
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "f7361fba7c288883"
+          },
+          "properties": {
+            "category": "security",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP006",
+          "level": "note",
+          "message": {
+            "text": "Comment restates what the code obviously does.\n\nFix: Delete the comment, or replace it with the *why* behind the code."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "49d25809778e05ad"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.7,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP006",
+          "level": "note",
+          "message": {
+            "text": "Comment restates what the code obviously does.\n\nFix: Delete the comment, or replace it with the *why* behind the code."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 18
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "71355081e6da4874"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.7,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP006",
+          "level": "note",
+          "message": {
+            "text": "Comment restates what the code obviously does.\n\nFix: Delete the comment, or replace it with the *why* behind the code."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "api/app.py"
+                },
+                "region": {
+                  "startLine": 23
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "8ee86f163498f02a"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.7,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP007",
+          "level": "note",
+          "message": {
+            "text": "A debugger hook or ad-hoc debug print was left in committed code.\n\nFix: Remove it, or route the message through the project's logger at debug level."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "78ebae718ba51980"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        },
+        {
+          "ruleId": "SLOP007",
+          "level": "note",
+          "message": {
+            "text": "A debugger hook or ad-hoc debug print was left in committed code.\n\nFix: Remove it, or route the message through the project's logger at debug level."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "web/server.js"
+                },
+                "region": {
+                  "startLine": 45
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "slopguard/v1": "1409aa77c8f75065"
+          },
+          "properties": {
+            "category": "slop",
+            "confidence": 0.8,
+            "verdict": "untriaged"
+          }
+        }
+      ]
+    }
+  ]
+}

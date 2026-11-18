@@ -1,0 +1,40 @@
+{
+  "name": "SlopGuard",
+  "tagline": "Architecture-agnostic agent that hunts security holes, AI slop, coding gaps and loose ends - with Claude-powered triage.",
+  "event": "mycrobo-hackathon",
+  "track": "AI triage",
+  "author": "joshhh62",
+  "repository": "https://github.com/joshhh62/slopguard",
+  "language": "Python",
+  "license": "MIT",
+  "description": "SlopGuard scans any repository (30+ languages and config formats) with 38 precision-tuned detectors across four classes - security, AI slop, coding gaps and loose ends - including hallucinated-dependency (slopsquatting) and prompt-injection detection. An optional Claude agent then triages every candidate with sandboxed read-only tools: it confirms or dismisses findings, corrects severity, writes tailored fixes, reports issues the rules missed and produces an executive summary. Outputs console, Markdown, HTML, JSON and SARIF, with CI gating, diff mode and baselines.",
+  "requirements": {
+    "python": ">=3.11",
+    "runtime_dependencies": [],
+    "optional": ["anthropic (for --ai)"]
+  },
+  "setup": "pip install -e \".[dev]\"",
+  "run": "slopguard scan examples/vulnerable-app",
+  "run_ai": "slopguard scan examples/vulnerable-app --ai",
+  "test": "pytest",
+  "demo": {
+    "command": "slopguard scan examples/vulnerable-app -f console,md,html -o .slopguard",
+    "sample_reports": [
+      "docs/sample-report/slopguard-report.md",
+      "docs/sample-report/slopguard-report.html",
+      "docs/sample-report/slopguard.sarif"
+    ]
+  },
+  "ai_log": "AI_LOG.md",
+  "ai_tools": ["Claude Code (Claude Opus 5.5)", "Claude API (claude-opus-5-5) - runtime triage agent"],
+  "features": [
+    "38 rules: security, AI slop, coding gaps, loose ends",
+    "Language-agnostic engine driven by a declarative language table, plus Python AST rules",
+    "Hallucinated / undeclared dependency detection (slopsquatting) for Python and JS/TS",
+    "Prompt-injection payload detection",
+    "Claude triage agent: sandboxed tools, secret redaction, budgets, graceful degradation",
+    "Console, Markdown, interactive HTML, JSON and SARIF 2.1.0 reports",
+    "CI-ready: --fail-on, --diff GIT_REF, baselines, GitHub Action",
+    "Zero runtime dependencies"
+  ]
+}

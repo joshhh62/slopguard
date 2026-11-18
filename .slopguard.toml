@@ -1,0 +1,3 @@
+# SlopGuard's own configuration - the tool scans itself in CI.
+# examples/ is a deliberately vulnerable demo app; tests/ build fixtures on the fly.
+exclude = ["examples/", "tests/"]

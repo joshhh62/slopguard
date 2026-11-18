@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slopguard"
+version = "1.0.0"
+description = "Architecture-agnostic agent that hunts security holes, AI slop, coding gaps and loose ends - with Claude-powered triage."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "joshhh62" }]
+keywords = ["security", "static-analysis", "ai", "code-review", "sast", "llm", "agent"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "Environment :: Console",
+]
+dependencies = []
+
+[project.optional-dependencies]
+ai = ["anthropic>=0.75"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+slopguard = "slopguard.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["slopguard*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
+addopts = "-q"

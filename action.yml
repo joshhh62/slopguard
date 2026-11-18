@@ -1,0 +1,41 @@
+name: SlopGuard
+description: Find security holes, AI slop, coding gaps and loose ends - optionally triaged by Claude.
+branding:
+  icon: shield
+  color: green
+inputs:
+  path:
+    description: Directory to scan
+    default: "."
+  fail-on:
+    description: Fail the job on open findings at or above this severity (critical|high|medium|low)
+    default: high
+  diff-ref:
+    description: Only report lines changed since this git ref (e.g. origin/main). Empty = whole repo.
+    default: ""
+  ai:
+    description: Run Claude triage ("true"/"false"). Requires the anthropic-api-key input.
+    default: "false"
+  anthropic-api-key:
+    description: Anthropic API key (pass a secret)
+    required: false
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - shell: bash
+      run: pip install "${{ github.action_path }}[ai]"
+    - shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        SG_PATH: ${{ inputs.path }}
+        SG_FAIL_ON: ${{ inputs.fail-on }}
+        SG_DIFF: ${{ inputs.diff-ref }}
+        SG_AI: ${{ inputs.ai }}
+      run: |
+        args=(scan "$SG_PATH" --format console,sarif,md --fail-on "$SG_FAIL_ON")
+        if [ -n "$SG_DIFF" ]; then args+=(--diff "$SG_DIFF"); fi
+        if [ "$SG_AI" = "true" ]; then args+=(--ai); fi
+        slopguard "${args[@]}"
